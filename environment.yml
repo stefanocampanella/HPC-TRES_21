@@ -1,0 +1,3 @@
+name: HPC-TRES_2021
+dependencies:
+  - nodejs
