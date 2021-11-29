@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>HPC-TRES 2021: Earthquake template-matching using modern Python</title>
+
+	<meta name="description" content="Massive earthquake template-matching on GPUs using modern Python">
+	<meta name="author" content="Stefano Campanella">
+
+	<link rel="stylesheet" href="reveal.js/dist/reset.css">
+	<link rel="stylesheet" href="reveal.js/dist/reveal.css">
+	<link rel="stylesheet" href="reveal.js/dist/theme/hpctres.css" id="theme">
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="reveal.js/plugin/highlight/monokai.css" id="highlight-theme">
+</head>
+
+<body>
+	<div class="reveal">
+
+		<div class="slides">
+			<!-- FIXME -->
+			<!-- <section>
+				<h1 style="color:white; text-transform:none">Earthquake template-matching on GPUs using modern Python</h1>
+				<p><a href="https://bit.ly/UPDATEME" target="_blank">bit.ly/UPDATEME</a></p>
+			</section> -->
+
+			<section>
+				<h1>Massive earthquake template-matching on GPUs using modern Python</h1>
+				<p>
+					<small><strong>Stefano Campanella</strong></small></p>
+				<p>
+					<small>Alessandro Vuan, Monica Sugan</small>
+				</p>
+			</section>
+			
+			<section>
+				<h3>Outline</h3>
+				<ol>
+					<li>
+						<b>Intro &amp; Motivations</b>
+						<ol>
+							<li>What is template-matching?</li>
+							<li>How is TM used in seismology?</li>
+							<li>The goal: study of the central Italy normal fault</li>
+						</ol>
+					</li>
+					<li>
+						<b>Methodology &amp; Implementation</b>
+						<ol>
+							<li>The workflow</li>
+							<li>Computational challenges</li>
+							<li>Implementation using modern Python</li>
+							<li>Deployment and workload orchestration</li>
+						</ol>
+					</li>
+					<li>
+						<b>Results</b>
+						<ol>
+							<li>The augmented catalogue</li>
+							<li>Software improvements</li>
+						</ol>
+					</li>	
+				</ol>
+			</section>
+			
+		</div>
+	</div>
+
+	<script src="reveal.js/dist/reveal.js"></script>
+	<script src="reveal.js/plugin/notes/notes.js"></script>
+	<script src="reveal.js/plugin/markdown/markdown.js"></script>
+	<script src="reveal.js/plugin/highlight/highlight.js"></script>
+	<script src="reveal.js/plugin/math/math.js"></script>
+	<script>
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		Reveal.initialize({
+			hash: true,
+
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX]
+		});
+	</script>
+</body>
+
+</html>
