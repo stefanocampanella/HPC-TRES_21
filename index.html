@@ -19,54 +19,54 @@
 
 <body>
 	<div class="reveal">
-
 		<div class="slides">
 			<section>
-				<h1 style="color:white; text-transform:none">Earthquake template-matching at scale</h1>
+				<h1 style="color:white">Earthquake template-matching at scale</h1>
 				<p><a href="https://bit.ly/3p9WdSw" target="_blank">https://bit.ly/3p9WdSw</a></p>
-			</section>
-
-			<section>
-				<h1>Earthquake template-matching at scale using GPUs and modern Python</h1>
-				<p>
-					<small><strong>Stefano Campanella</strong></small></p>
-				<p>
-					<small>Alessandro Vuan, Monica Sugan</small>
-				</p>
-				<div style="margin: 0 auto; width: 60%; display:flex; justify-content:space-between">
-					<img class="plain" src="assets/ogs.png" height="100px">
-					<img class="plain" src="assets/hpctres.png" height="100px">
-				</div>
 			</section>
 			
 			<section>
-				<h3>Outline</h3>
-				<ol>
-					<li>
-						<b>Intro &amp; Motivations</b>
-						<ol>
-							<li>What is template-matching?</li>
-							<li>How is TM used in seismology?</li>
-							<li>The goal: study of the central Italy normal fault</li>
-						</ol>
-					</li>
-					<li>
-						<b>Methodology &amp; Implementation</b>
-						<ol>
-							<li>The workflow</li>
-							<li>Computational challenges</li>
-							<li>Implementation using modern Python</li>
-							<li>Deployment and workload orchestration</li>
-						</ol>
-					</li>
-					<li>
-						<b>Results</b>
-						<ol>
-							<li>The augmented catalogue</li>
-							<li>Software improvements</li>
-						</ol>
-					</li>	
-				</ol>
+				<section>
+					<h1>Earthquake template-matching at scale using GPUs and modern Python</h1>
+					<p>
+						<small><strong>Stefano Campanella</strong></small></p>
+					<p>
+						<small>Alessandro Vuan, Monica Sugan</small>
+					</p>
+					<div style="margin: 0 auto; width: 60%; display:flex; justify-content:space-between">
+						<img class="plain" src="assets/ogs.png" height="100px">
+						<img class="plain" src="assets/hpctres.png" height="100px">
+					</div>
+				</section>
+				
+				<section>
+					<h3>Outline</h3>
+					<ol>
+						<li>
+							<b>Intro &amp; Motivations</b>
+							<ol>
+								<li>What is template-matching?</li>
+								<li>How is TM used in seismology?</li>
+							</ol>
+						</li>
+						<li>
+							<b>Methodology &amp; Implementation</b>
+							<ol>
+								<li>The workflow</li>
+								<li>Computational challenges</li>
+								<li>Implementation using modern Python</li>
+								<li>Deployment and workload orchestration</li>
+							</ol>
+						</li>
+						<li>
+							<b>Results</b>
+							<ol>
+								<li>The augmented catalogue</li>
+								<li>Software improvements</li>
+							</ol>
+						</li>	
+					</ol>
+				</section>
 			</section>
 
 			<section>
@@ -75,8 +75,9 @@
 				</section>
 
 				<section>
+					<h3>Template-matching in computer vision</h3>
 					<p>
-						Template matching is a technique originally developed in digital image processing to find the part of an image that resemble a template.
+						Template matching is a technique originally developed in digital image processing to find the part of an image that <em>resemble</em> a given template.
 					</p>
 					<p class=fragment>
 						In its simplest version, the idea is to compute a similarity index as the template moves across the image. If some criterion based on the index is met, there is a match.
@@ -87,16 +88,24 @@
 				</section>
 				
 				<section>
-					<p> 
-						Let's consider a 1D image \( (x_n)_{0 \leq n < M} \) and template \( (y_n)_{0 \leq n < N} \) (i.e. two time series), where of course \( M > N\).
-					</p>
-					<p class=fragment>
-						For example, one might use the so-called normalized cross-correlation \(r\) (that is the Pearson correlation index) to measure similarity.
-					</p>
-					<p class=fragment>
-						Call \( y^{(k)}_n = y_{n + k}\) the segment of \(y_n\) alligned at sample \(k\), then:
-						\[ r_k = \frac{\sum\limits^N_{n = 0} ( x_n - \langle x \rangle ) ( y^{(k)}_n - \langle y^{(k)}\rangle )}{\left( \sum\limits^N_{n = 0} ( x_n - \langle x \rangle )^2 \sum\limits^N_{n = 0} ( y^{(k)}_n - \langle y^{(k)} \rangle )^2 \right)^\frac{1}{2}}\]
-					</p>
+					<h3>A template-matching algorithm</h3>
+					<p>A straightforward choice for measuring similarity is the so-called normalized cross-correlation \(r\) (Pearson correlation index). Consider the case of a <b>1D</b> image \(x_n\) and of a search for a <b>single occurrence</b> of template \(y_n\):</p>
+					<div class="r-frame fragment", data-fragment-index="1", style="display: flex; justify-content: center;">
+						<div style="width: 80%; text-align: left; font-family: var(--r-code-font);">
+							<p class=fragment data-fragment-index="1"> 
+								Inputs ← \( (x_n)_{0 \leq n < M}, (y_n)_{0 \leq n < N} \) where \( M > N\).
+							</p>
+							<p class=fragment>
+								For \(k = 0, \ldots, M - N\) compute \(r_k\), where 
+								\[ 
+									r_k = \frac{\sum\limits^N_{n = 0} ( x_n - \langle x \rangle ) ( y^{(k)}_n - \langle y^{(k)}\rangle )}{\left( \sum\limits^N_{n = 0} ( x_n - \langle x \rangle )^2 \sum\limits^N_{n = 0} ( y^{(k)}_n - \langle y^{(k)} \rangle )^2 \right)^\frac{1}{2}} \; .
+								\]
+							</p>
+							<p class=fragment>
+								Output ← detection at \(\text{argmax} \left( r_k \right)\).
+							</p>
+						</div>
+					</div>
 				</section>
 			</section>
 
@@ -106,9 +115,66 @@
 				</section>
 
 				<section>
+					<h3>Earthquake template-matching</h3>
 					<p>
-						The previous one dimensional case is exactly the case of signals found in earthquake template-matching, with and important difference:  
+						The previous one dimensional case is the one of seismology, with one important difference: both the signal and the template comprise <b>several time series</b> (traces). Simplifying a bit, <b>each trace is a seismogram registered at a particular location</b>.
 					</p>
+					<p class=fragment>
+						Here the <b>template</b> is the relevant part of the signal produced by a <b>known earthquake</b> (i.e. coming from an existing catalogue) at that location. The similarity index is usually the mean value of the ones of each trace. If there is a match, one might reasonably conclude that it has approximately the <b>same source</b> as the template.
+					</p>
+					<p class=fragment>
+						Indeed, the <b>relative displacement of traces</b> in the template (delays) encodes important information about the <b>position of the source</b> and the value of the similarity index encompasses both the similarity of waveforms and delays.
+					</p>
+				</section>
+
+				<section>
+					<h3>Example of earthquake TM setting</h3>
+					<img class="plain" src="assets/eqtm_data.jpg">
+					<p><em>from Kato et al., (2013, GRL)</em></p>
+				</section>
+				
+				<section>
+					<h3>Example of detection</h3>
+					<div style="margin: 0 auto; width: 100%; display:flex; justify-content:space-between">
+						<div style="width: 60%">
+							<img class="plain" src="assets/eqtm_match.png" height=70%>
+							<p><em>from Kato et al., (2013, GRL)</em></p>
+						</div>
+						<div class=fragment style="width: 40%;">
+							<h4>Subtleties</h4>
+							<ol>
+								<li class=fragment>Procedure depends on data preparation (trim, resample, filter, etc.)</li>
+								<li class=fragment>Noise level is not known nor constant</li>
+								<li class=fragment>Seismic network might change</li>
+								<li class=fragment>Traces not perfectly synchronized</li>
+								<li class=fragment>Template and detection don't have the exact same location</li>
+								<li class=fragment>\(r_k\) can change significanlty over few samples</li>
+								<li class=fragment>Filter out spurious detections</li>
+							</ol>
+						</div>
+					</div>
+				</section>
+				
+				<section>
+					<h3>Scientific goal</h3>
+					<p>
+						This technique has been applied to the study (RISE, Horizon 2020) of the central Italy normal fault, in particular to the pre-sequence of the Amatrice earthquake (August 24th, 2016).
+
+						
+					</p>
+					<p>
+						The relevance of such studies concernes:
+						<ol>
+							<li>Production of so-called augmented catalogues for statistical purposes.</li>
+							<li>Analysis of seismogenic processes.</li>
+						</ol>
+					</p>
+				</section>
+			</section>
+			
+			<section>
+				<section>
+
 				</section>
 			</section>
 		</div>
