@@ -12,7 +12,7 @@
 
 	<link rel="stylesheet" href="reveal.js/dist/reset.css">
 	<link rel="stylesheet" href="reveal.js/dist/reveal.css">
-	<link rel="stylesheet" href="reveal.js/dist/theme/hpctres.css" id="theme">
+	<link rel="stylesheet" href="reveal.js/dist/theme/ogs.css" id="theme">
 	<!-- Theme used for syntax highlighted code -->
 	<link rel="stylesheet" href="reveal.js/plugin/highlight/monokai.css" id="highlight-theme">
 </head>
@@ -23,17 +23,21 @@
 		<div class="slides">
 			<!-- FIXME -->
 			<!-- <section>
-				<h1 style="color:white; text-transform:none">Earthquake template-matching on GPUs using modern Python</h1>
+				<h1 style="color:white; text-transform:none">Earthquake template-matching at scale</h1>
 				<p><a href="https://bit.ly/UPDATEME" target="_blank">bit.ly/UPDATEME</a></p>
 			</section> -->
 
 			<section>
-				<h1>Massive earthquake template-matching on GPUs using modern Python</h1>
+				<h1>Earthquake template-matching at scale using GPUs and modern Python</h1>
 				<p>
 					<small><strong>Stefano Campanella</strong></small></p>
 				<p>
 					<small>Alessandro Vuan, Monica Sugan</small>
 				</p>
+				<div style="margin: 0 auto; width: 60%; display:flex; justify-content:space-between">
+					<img class="plain" src="assets/ogs.png" height="100px">
+					<img class="plain" src="assets/hpctres.png" height="100px">
+				</div>
 			</section>
 			
 			<section>
@@ -65,7 +69,49 @@
 					</li>	
 				</ol>
 			</section>
-			
+
+			<section>
+				<section>
+					<h2 class='r-fit-text'>What is template-matching?</h2>
+				</section>
+
+				<section>
+					<p>
+						Template matching is a technique originally developed in digital image processing to find the part of an image that resemble a template.
+					</p>
+					<p class=fragment>
+						In its simplest version, the idea is to compute a similarity index as the template moves across the image. If some criterion based on the index is met, there is a match.
+					</p>
+				</section>
+
+				<section data-background-iframe="https://docs.opencv.org/4.x/d4/dc6/tutorial_py_template_matching.html" data-background-interactive>
+				</section>
+				
+				<section>
+					<p> 
+						Let's consider a 1D image \( (x_n)_{0 \leq n < M} \) and template \( (y_n)_{0 \leq n < N} \) (i.e. two time series), where of course \( M > N\).
+					</p>
+					<p class=fragment>
+						For example, one might use the so-called normalized cross-correlation \(r\) (that is the Pearson correlation index) to measure similarity.
+					</p>
+					<p class=fragment>
+						Call \( y^{(k)}_n = y_{n + k}\) the segment of \(y_n\) alligned at sample \(k\), then:
+						\[ r_k = \frac{\sum\limits^N_{n = 0} ( x_n - \langle x \rangle ) ( y^{(k)}_n - \langle y^{(k)}\rangle )}{\left( \sum\limits^N_{n = 0} ( x_n - \langle x \rangle )^2 \sum\limits^N_{n = 0} ( y^{(k)}_n - \langle y^{(k)} \rangle )^2 \right)^\frac{1}{2}}\]
+					</p>
+				</section>
+			</section>
+
+			<section>
+				<section>
+					<h2 class='r-fit-text'>Template-matching in seismology</h2>
+				</section>
+
+				<section>
+					<p>
+						The previous one dimensional case is exactly the case of signals found in earthquake template-matching, with and important difference:  
+					</p>
+				</section>
+			</section>
 		</div>
 	</div>
 
