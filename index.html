@@ -142,7 +142,7 @@
 						</div>
 						<div class=fragment style="width: 40%;">
 							<h4>Subtleties</h4>
-							<ol>
+							<ul>
 								<li class=fragment>Procedure depends on data preparation (trim, resample, filter, etc.)</li>
 								<li class=fragment>Noise level is not known nor constant</li>
 								<li class=fragment>Seismic network might change</li>
@@ -150,7 +150,7 @@
 								<li class=fragment>Template and detection don't have the exact same location</li>
 								<li class=fragment>\(r_k\) can change significanlty over few samples</li>
 								<li class=fragment>Filter out spurious detections</li>
-							</ol>
+							</ul>
 						</div>
 					</div>
 				</section>
@@ -174,7 +174,85 @@
 			
 			<section>
 				<section>
+					<h2 class="r-fit-text">The workflow</h2>
+				</section>
 
+				<section>
+					<h3>The whole analysis in plain language</h3>
+					<p>Find all the matches in the data for each template and store the result on disk.</p>
+				</section>
+
+				<section>
+					<h3>The workload for the analysis of the Amatrice pre-sequence</h3>
+					<ul>
+						<li>48,000 templates, 5 seconds each</li>
+						<li>3,600 days of continuous data recorded at 20Hz</li>
+						<li>Up to 18 traces used for TM</li>
+						<li>Previous TM performance ≈ 0.05 second / trace template day</li>
+					</ul>
+					<p>
+						Previous version of the software was infeasible for analyses of this size and would have required order of 200,000,000 core hours.
+					</p>
+				</section>
+			</section>
+			
+			<section>
+				<section>
+					<h2 class="r-fit-text">Optimizations</h2>
+				</section>
+
+				<section>
+					<h3>First optimizations</h3>
+					<p>
+						The problem is <b>embarassingly parallel and CPU-bounded</b>. The computation for one pair (template, day) is independent from the others and the largest fraction of time is spent in the <b>calculation of the cross-correlation</b>, which is \(\mathcal{O}(n^2)\). Thus first round of optimizations concerned serial code.
+					</p>
+					<p>
+						Avoiding useless IO accounted for most of the optimizations of this first step. Also error handling had a role (if a bug makes the code fail after 0.01 second one time in ten, you have wasted 4,000,000 core hours).
+					</p>
+					<p>
+						However, analizing each pair separately would scale the IO as well. Workload orchestration needs to take that into account. 
+					</p>
+				</section>
+
+				<section>
+					<h3>Why is Python used in scientific computing?</h3>
+				</section>
+
+				<section>
+					<h3>Computing the normalized cross-correlation using array programming</h3>
+				</section>
+				
+				<section>
+					<h3>Parallel computing in Python</h3>
+				</section>
+
+				<section>
+					<h3>Workload orchestration</h3>
+						<p>One process per day, processing all templates using a thread pool.</p>
+						<p>Why use Marconi if you have Marconi 100?</p>
+						<p>ISCRA C</p>
+				</section>
+
+				<section>
+					<h3>GPU/CPU agnostic code</h3>
+				</section>
+
+				<section>
+					<h3>Using the right serialization format</h3>
+				</section>
+			</section>
+
+			<section>
+				<section>
+					<h2 class="r-fit-text">Results</h2>
+				</section>
+
+				<section>
+					<h3>All the analysis took a couple of days (the machine was busy)</h3>
+				</section>
+
+				<section>
+					<h3>Scientific validation: check</h3>
 				</section>
 			</section>
 		</div>
