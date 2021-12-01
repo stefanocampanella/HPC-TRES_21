@@ -29,14 +29,15 @@
 				<section>
 					<h1>Earthquake template-matching at scale using GPUs and modern Python</h1>
 					<p>
-						<small><strong>Stefano Campanella</strong></small></p>
+						<small><strong>Stefano Campanella<sup>*</sup></strong></small></p>
 					<p>
-						<small>Alessandro Vuan, Monica Sugan</small>
+						<small>Alessandro Vuan<sup>*</sup>, Monica Sugan<sup>*</sup></small>
 					</p>
 					<div style="margin: 0 auto; width: 60%; display:flex; justify-content:space-between">
 						<img class="plain" src="assets/ogs.png" height="100px">
 						<img class="plain" src="assets/hpctres.png" height="100px">
 					</div>
+					<p style="font-size: small"><sup>*</sup>Seismological Research Center (CRS), National Institute of Oceanography and Applied Geophysics, OGS</p>
 				</section>
 				
 				<section>
@@ -71,13 +72,13 @@
 
 			<section>
 				<section>
-					<h2 class='r-fit-text'>What is template-matching?</h2>
+					<h2 class='r-fit-text'>Template-Matching</h2>
 				</section>
 
 				<section>
 					<h3>Template-matching in computer vision</h3>
 					<p>
-						Template matching is a technique originally developed in digital image processing to find the part of an image that <em>resemble</em> a given template.
+						Template matching (TM) is a technique originally developed in digital image processing to find the part of an image that <em>resemble</em> a given template.
 					</p>
 					<p class=fragment>
 						In its simplest version, the idea is to compute a similarity index as the template moves across the image. If some criterion based on the index is met, there is a match.
@@ -88,7 +89,7 @@
 				</section>
 				
 				<section>
-					<h3>A template-matching algorithm</h3>
+					<h3>A TM algorithm example</h3>
 					<p>A straightforward choice for measuring similarity is the so-called normalized cross-correlation \(r\) (Pearson correlation index). Consider the case of a <b>1D</b> image \(x_n\) and of a search for a <b>single occurrence</b> of template \(y_n\):</p>
 					<div class="r-frame fragment", data-fragment-index="1", style="display: flex; justify-content: center;">
 						<div style="width: 80%; text-align: left; font-family: var(--r-code-font);">
@@ -98,8 +99,9 @@
 							<p class=fragment>
 								For \(k = 0, \ldots, M - N\) compute \(r_k\), where 
 								\[ 
-									r_k = \frac{\sum\limits^N_{n = 0} ( x_n - \langle x \rangle ) ( y^{(k)}_n - \langle y^{(k)}\rangle )}{\left( \sum\limits^N_{n = 0} ( x_n - \langle x \rangle )^2 \sum\limits^N_{n = 0} ( y^{(k)}_n - \langle y^{(k)} \rangle )^2 \right)^\frac{1}{2}} \; .
+									r_k = \frac{\sum\limits^N_{n = 0} ( x_n - \langle x \rangle ) ( y^{(k)}_n - \langle y^{(k)}\rangle )}{\left( \sum\limits^N_{n = 0} ( x_n - \langle x \rangle )^2 \sum\limits^N_{n = 0} ( y^{(k)}_n - \langle y^{(k)} \rangle )^2 \right)^\frac{1}{2}} \; ,
 								\]
+								and \(y^{(k)}_n = y_{k + n}\).
 							</p>
 							<p class=fragment>
 								Output ← detection at \(\text{argmax} \left( r_k \right)\).
@@ -111,16 +113,16 @@
 
 			<section>
 				<section>
-					<h2 class='r-fit-text'>Template-matching in seismology</h2>
+					<h2 class='r-fit-text'>TM in Seismology</h2>
 				</section>
 
 				<section>
-					<h3>Earthquake template-matching</h3>
+					<h3>Earthquake template-matching (EQTM)</h3>
 					<p>
 						The previous one dimensional case is the one of seismology, with one important difference: both the signal and the template comprise <b>several time series</b> (traces). Simplifying a bit, <b>each trace is a seismogram registered at a particular location</b>.
 					</p>
 					<p class=fragment>
-						Here the <b>template</b> is the relevant part of the signal produced by a <b>known earthquake</b> (i.e. coming from an existing catalogue) at that location. The similarity index is usually the mean value of the ones of each trace. If there is a match, one might reasonably conclude that it has approximately the <b>same source</b> as the template.
+						Here, the <b>template</b> is the relevant part of the signal produced by a <b>known earthquake</b> (i.e. coming from an existing catalogue) at that location. The similarity index is usually the mean value of the ones of each trace. If there is a match, one might reasonably conclude that it has approximately the <b>same source</b> as the template.
 					</p>
 					<p class=fragment>
 						Indeed, the <b>relative displacement of traces</b> in the template (delays) encodes important information about the <b>position of the source</b> and the value of the similarity index encompasses both the similarity of waveforms and delays.
@@ -128,7 +130,7 @@
 				</section>
 
 				<section>
-					<h3>Example of earthquake TM setting</h3>
+					<h3>Example of EQTM setting</h3>
 					<img class="plain" src="assets/eqtm_data.jpg">
 					<p><em>from Kato et al., (2013, GRL)</em></p>
 				</section>
@@ -143,10 +145,10 @@
 						<div class=fragment style="width: 40%;">
 							<h4>Subtleties</h4>
 							<ul>
-								<li class=fragment>Procedure depends on data preparation (trim, resample, filter, etc.)</li>
-								<li class=fragment>Noise level is not known nor constant</li>
+								<li class=fragment>Detections sensitive on data preparation (trim, resample, filter, etc.)</li>
+								<li class=fragment>Noise baseline level is not known nor constant</li>
 								<li class=fragment>Seismic network might change</li>
-								<li class=fragment>Traces not perfectly synchronized</li>
+								<li class=fragment>Traces might not be perfectly synchronized</li>
 								<li class=fragment>Template and detection don't have the exact same location</li>
 								<li class=fragment>\(r_k\) can change significanlty over few samples</li>
 								<li class=fragment>Filter out spurious detections</li>
@@ -159,13 +161,11 @@
 					<h3>Scientific goal</h3>
 					<p>
 						This technique has been applied to the study (RISE, Horizon 2020) of the central Italy normal fault, in particular to the pre-sequence of the Amatrice earthquake (August 24th, 2016).
-
-						
 					</p>
 					<p>
 						The relevance of such studies concernes:
 						<ol>
-							<li>Production of so-called augmented catalogues for statistical purposes.</li>
+							<li>Production of augmented catalogues for statistical purposes.</li>
 							<li>Analysis of seismogenic processes.</li>
 						</ol>
 					</p>
@@ -174,16 +174,16 @@
 			
 			<section>
 				<section>
-					<h2 class="r-fit-text">The workflow</h2>
+					<h2 class="r-fit-text">TM at Scale</h2>
 				</section>
 
 				<section>
-					<h3>The whole analysis in plain language</h3>
-					<p>Find all the matches in the data for each template and store the result on disk.</p>
+					<h3 class="r-fit-text">The whole analysis in plain language</h3>
+					<p class="r-fit-text">Find all the matches in the data for each template and store the detections on disk.</p>
 				</section>
 
 				<section>
-					<h3>The workload for the analysis of the Amatrice pre-sequence</h3>
+					<h3>The workload in numbers</h3>
 					<ul>
 						<li>48,000 templates, 5 seconds each</li>
 						<li>3,600 days of continuous data recorded at 20Hz</li>
@@ -191,31 +191,46 @@
 						<li>Previous TM performance ≈ 0.05 second / trace template day</li>
 					</ul>
 					<p>
-						Previous version of the software was infeasible for analyses of this size and would have required order of 200,000,000 core hours.
+						Previous version of the software used for EQTM was <b>infeasible for analyses of this size</b> and would have required <b>order of 200,000,000 core hours</b>.
 					</p>
+				</section>
+				
+				<section>
+					<h3>First optimizations</h3>
+					<p>
+						The problem is <b>embarassingly parallel and CPU-bounded</b>. The computation for one pair (template, day) is independent from the others and the largest fraction of time is spent in the <b>calculation of the cross-correlation</b>, which is \(\mathcal{O}(n^2)\). Thus first round of optimizations was concerned with serial code.
+					</p>
+					<p class=fragment>
+						Avoiding useless IO accounted for most of the optimizations of this first step. Also error handling had a role (if a bug makes the code fail after 0.01 second one time in ten, you have wasted 4,000,000 core hours).
+					</p>
+					<p class=fragment>
+						However, analizing each pair separately would scale the IO as well. Workload orchestration needs to take IO/computation overlap (if available) into account. 
+					</p>
+				</section>
+				
+				<section>
+					<h3>Workload orchestration</h3>
+						<p class=fragment>One process per day, processing all templates (more or less) using a thread pool.</p>
+						<p class=fragment>ISCRA C: SPACE, Why use Marconi if you have Marconi 100? (One GPU per process)</p>
 				</section>
 			</section>
 			
 			<section>
 				<section>
-					<h2 class="r-fit-text">Optimizations</h2>
-				</section>
-
-				<section>
-					<h3>First optimizations</h3>
-					<p>
-						The problem is <b>embarassingly parallel and CPU-bounded</b>. The computation for one pair (template, day) is independent from the others and the largest fraction of time is spent in the <b>calculation of the cross-correlation</b>, which is \(\mathcal{O}(n^2)\). Thus first round of optimizations concerned serial code.
-					</p>
-					<p>
-						Avoiding useless IO accounted for most of the optimizations of this first step. Also error handling had a role (if a bug makes the code fail after 0.01 second one time in ten, you have wasted 4,000,000 core hours).
-					</p>
-					<p>
-						However, analizing each pair separately would scale the IO as well. Workload orchestration needs to take that into account. 
-					</p>
+					<h2 class="r-fit-text">EQTM using Python</h2>
 				</section>
 
 				<section>
 					<h3>Why is Python used in scientific computing?</h3>
+					<p>
+						Python is utterly slow. Then why is it used in numerical crunching?
+					</p>
+					<p>
+						The answer is that, most of the time, scientific codes are not running Python at all. Usually, in these codes, the distribution of the execution time spent on each line is sharply peaked around a couple of routines. The open-source community then rewritten them in a programming language with less overhead.
+					</p>
+					<p>
+						Hence, to get acceptable performance, you need to work with arrays (indexable objects of continuous memory) and avoid tight loops. This style of programming is called array programming.
+					</p>
 				</section>
 
 				<section>
@@ -225,21 +240,63 @@
 				<section>
 					<h3>Parallel computing in Python</h3>
 				</section>
-
-				<section>
-					<h3>Workload orchestration</h3>
-						<p>One process per day, processing all templates using a thread pool.</p>
-						<p>Why use Marconi if you have Marconi 100?</p>
-						<p>ISCRA C</p>
-				</section>
-
-				<section>
-					<h3>GPU/CPU agnostic code</h3>
-				</section>
-
+				
 				<section>
 					<h3>Using the right serialization format</h3>
 				</section>
+			</section>
+
+			<section>
+				<section>
+					<h2 class="r-fit-text">EQTM on GPUs</h2>
+				</section>
+
+				<section>
+					<h3>Simple GPU/CPU agnostic code with CuPy</h3>
+					<pre><code data-trim data-noescape class=python>
+						import numpy as np
+						
+						# Use GPU acceleration if available
+						try:
+						    import cupy # if CuPy is not installed, this will throw a ModuleNotFoundError
+
+						    xp = cupy
+						except ImportError:
+						    cupy = None # the symbol cupy should be defined anyway (see next slide)
+						    xp = np
+
+
+						def moving_mean(data, window):
+						    pad = window - 1
+						    mean = xp.empty_like(data)
+						    csum = xp.cumsum(data)
+						    mean[0] = csum[pad] / window
+						    mean[1:-pad] = (csum[window:] - csum[:-window]) / window
+						    mean[-pad:] = 0.0
+						    return mean
+					</code></pre>
+				</section>
+
+				<section>
+					<h3>CUDA Streams</h3>
+					<pre><code data-trim data-noescape class=python>
+						from concurrent.futures import ThreadPoolExecutor
+						from contextlib import nullcontext
+
+						if cupy:
+						    streams = [cupy.cuda.Stream() for _ in range(max_channels)]
+						else:
+						    streams = [nullcontext() for _ in range(max_channels)]
+					
+						with ThreadPoolExecutor(max_workers=max_workers) as pool:
+						    for data, template in zip(data_iterator, template_iterator):
+						        try:
+						            correlations = pool.map(correlate, data, template, streams)
+						        except BaseException as exception:
+						            pass # Please, don't be that person.
+					</code></pre>
+				</section>
+
 			</section>
 
 			<section>
@@ -255,6 +312,31 @@
 					<h3>Scientific validation: check</h3>
 				</section>
 			</section>
+			
+			<section>
+				<h3>Wrap Up</h3>
+				<ul>
+					<li>A new EQTM software package has been developed</li>
+					<li>This software is able to perform TM at scale</li>
+					<li>A large analysis has been conducted on Marconi 100</li>
+				</ul>
+			</section>
+			
+			<section>
+				<h2>Acknowledgments</h2>
+				<p>
+					The research reported in this work was supported by OGS and CINECA under HPC-TRES program award number 2021-01.
+				</p>
+				<p>
+					We acknowledge the CINECA award under the ISCRA initiative, for the availability of high performance computing resources and support.
+				</p>
+			</section>
+			
+			<section>
+				<h3>Q&A</h3>
+				<blockquote>“He who knows does not speak;<br> He who speaks does not know”</blockquote>
+				<p>(Laozi, <em>Tao Te Ching</em>)</p>
+			</section>
 		</div>
 	</div>
 
@@ -269,6 +351,7 @@
 		// - https://revealjs.com/config/
 		Reveal.initialize({
 			hash: true,
+			slideNumber: 'c/t',
 
 			// Learn about plugins: https://revealjs.com/plugins/
 			plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX]
